@@ -1,4 +1,23 @@
-export const planetsData = {
+export interface Planet {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  position: { x: number; y: number; z: number };
+  size: number;
+  genre: string;
+  tracks: Track[];
+}
+
+export interface Track {
+  id: number;
+  title: string;
+  artist: string;
+  duration: number;
+  url: string;
+}
+
+export const planetsData: Record<string, Planet> = {
   echoBlue: {
     id: 'echo-blue',
     name: 'Echo Blue',
@@ -59,4 +78,4 @@ export const planetsData = {
     genre: 'melancholic-ambient',
     tracks: []
   }
-}; 
+};

@@ -1,17 +1,59 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
-const AudioContext = createContext();
+interface Track {
+  id: number;
+  title: string;
+  artist: string;
+  duration: number;
+  url: string;
+}
 
-const initialState = {
+interface Planet {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  position: { x: number; y: number; z: number };
+  size: number;
+  genre: string;
+  tracks: Track[];
+}
+
+interface AudioState {
+  currentTrack: Track | null;
+  isPlaying: boolean;
+  volume: number;
+  currentPlanet: Planet | null;
+  playlist: Track[];
+  playbackMode: 'normal' | 'blackhole';
+}
+
+type AudioAction = 
+  | { type: 'PLAY_TRACK'; payload: Track }
+  | { type: 'PAUSE' }
+  | { type: 'RESUME' }
+  | { type: 'SET_VOLUME'; payload: number }
+  | { type: 'SET_PLANET'; payload: Planet }
+  | { type: 'SET_PLAYLIST'; payload: Track[] }
+  | { type: 'SET_PLAYBACK_MODE'; payload: 'normal' | 'blackhole' };
+
+interface AudioContextType {
+  state: AudioState;
+  dispatch: React.Dispatch<AudioAction>;
+}
+
+const AudioContext = createContext<AudioContextType | undefined>(undefined);
+
+const initialState: AudioState = {
   currentTrack: null,
   isPlaying: false,
   volume: 0.7,
   currentPlanet: null,
   playlist: [],
-  playbackMode: 'normal' // 'normal' or 'blackhole'
+  playbackMode: 'normal'
 };
 
-function audioReducer(state, action) {
+function audioReducer(state: AudioState, action: AudioAction): AudioState {
   switch (action.type) {
     case 'PLAY_TRACK':
       return { ...state, currentTrack: action.payload, isPlaying: true };
@@ -32,7 +74,11 @@ function audioReducer(state, action) {
   }
 }
 
-export const AudioProvider = ({ children }) => {
+interface AudioProviderProps {
+  children: ReactNode;
+}
+
+export const AudioProvider: React.FC<AudioProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(audioReducer, initialState);
 
   return (
@@ -42,10 +88,10 @@ export const AudioProvider = ({ children }) => {
   );
 };
 
-export const useAudio = () => {
+export const useAudio = (): AudioContextType => {
   const context = useContext(AudioContext);
   if (!context) {
     throw new Error('useAudio must be used within an AudioProvider');
   }
   return context;
-}; 
+};
